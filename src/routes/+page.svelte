@@ -25,6 +25,12 @@
         }
         cmd = '';
     }
+    
+    function sendAction(action) {
+        if (ws) {
+            ws.send(JSON.stringify(action));
+        }
+    }
 </script>
 
 <h1>Hu4Rolls-2 Svelte Client!</h1>
@@ -49,9 +55,19 @@
 </form>
 
     {#if data}
-    <h2>Data</h2>
-    <!-- Go through keys of data -->
-    {#each Object.keys(data) as key}
-        <p>{key}: {data[key]}</p>
-    {/each}
+        <h2>Data</h2>
+        <!-- Go through keys of data -->
+        {#each Object.keys(data) as key}
+            <p>{key}: {data[key]}</p>
+        {/each}
+        
+        {#if data.available_actions }
+        <h3>Available actions</h3>
+        <ul>
+        <!-- Go through keys of data.actions -->
+        {#each data.available_actions as action}
+            <li><button on:click={() => sendAction(action)}>{JSON.stringify(action)}</button><li>
+        {/each}
+        </ul>
+        {/if}
     {/if}
