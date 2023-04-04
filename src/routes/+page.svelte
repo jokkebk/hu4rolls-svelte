@@ -1,18 +1,18 @@
 <script>
     let wsAddr = '';
-    let ws = null;
+    let ws = null, data = null;
     let cmd = '';
     
     function connectWs() {
-        if (ws) {
-            ws.close();
-        }
+        if (ws) return; // Do nothing if already connected
+
         ws = new WebSocket(wsAddr);
         ws.onopen = () => {
             console.log('ws open');
         };
         ws.onmessage = (msg) => {
             console.log('ws message', msg);
+            data = JSON.parse(msg.data);
         };
         ws.onclose = () => {
             console.log('ws close');
@@ -20,20 +20,38 @@
     }
     
     function sendCmd() {
-        if (ws) {
+        if (ws && cmd) {
             ws.send(cmd);
         }
+        cmd = '';
     }
 </script>
 
-<h1>Hu4Rolls-2 Svelte Client</h1>
+<h1>Hu4Rolls-2 Svelte Client!</h1>
 
-<p>
+{#if ws}
+    <p>Connected to {wsAddr}</p>
+    <button on:click={() => { ws.close(); ws = null; }}>Disconnect</button>
+{:else}
+<form on:submit|preventDefault={connectWs}>
+    <p>
     <input bind:value={wsAddr} placeholder="Paste WS address here">
     <button on:click={connectWs}>Connect</button>
-</p>
+    </p>
+</form>
+{/if}
 
-<p>
+<form on:submit|preventDefault={sendCmd}>
+    <p>
     <input bind:value={cmd} placeholder="Enter command here">
     <button on:click={sendCmd}>Send command</button>
-</p>
+    </p>
+</form>
+
+    {#if data}
+    <h2>Data</h2>
+    <!-- Go through keys of data -->
+    {#each Object.keys(data) as key}
+        <p>{key}: {data[key]}</p>
+    {/each}
+    {/if}
