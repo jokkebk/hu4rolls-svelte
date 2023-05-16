@@ -7,7 +7,7 @@ let stacks = 200;
 let seat = 0;
 let response = null;
 
-let seats = ['Button', 'SB'];
+let seats = ['Button', 'BB'];
 
 async function createGame() {
     // Post AJAX request to create game
