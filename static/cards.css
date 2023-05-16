@@ -28,12 +28,12 @@
 }
 
 .card:before {
-    font-size: 3em;
+    font-size: 2.5em;
     top: 0em;
 }
 
 .card:after {
-    font-size: 4em;
+    font-size: 3em;
     bottom: -0.1em;
 }
 

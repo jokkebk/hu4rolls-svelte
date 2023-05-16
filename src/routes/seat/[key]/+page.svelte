@@ -5,46 +5,15 @@
     // hardcode for now
     let host = 'localhost';
     let port = 8000;
-    
-    $: wsAddr = `ws://${host}:${port}/ws/${$page.params.key}`;
-
     let ws = null;
     let cmd = 'state';
+    let showRaw = false;
+
+    $: wsAddr = `ws://${host}:${port}/ws/${$page.params.key}`;
+
     
     // Connect onMount
     onMount(() => {
-        connectWs();
-    });
-
-    // Sample game state:
-    // {
-    //  "pot_size": 0,
-    //  "btn_stack": 200,
-    //  "bb_stack": 200,
-    //  "btn_added_chips_this_street": 0,
-    //  "bb_added_chips_this_street": 0,
-    //  "button_seat": 0,
-    //  "sb_size": 5,
-    //  "bb_size": 10,
-    //  "btn_hole_cards": [
-    //    "8d",
-    //    "6d"
-    //  ],
-    //  "bb_hole_cards": null,
-    //  "board_cards": [],
-    //  "available_actions": [
-    //    {
-    //      "PostBlind": 5
-    //    }
-    //  ],
-    //  "active_player": "Button"
-    // };
-    
-    let state = null, betsize = 0; // helper for betsize input
-
-    function connectWs() {
-        if (ws) return; // Do nothing if already connected
-            
         ws = new WebSocket(wsAddr);
         ws.onopen = () => {
             console.log('ws open');
@@ -56,8 +25,26 @@
         ws.onclose = () => {
             console.log('ws close');
         };
-    }
-    
+    });
+
+    let state = null, betsize = 0; // helper for betsize input
+    // Sample game state:
+    // {
+    //  "pot_size": 0,
+    //  "btn_stack": 200,
+    //  "bb_stack": 200,
+    //  "btn_added_chips_this_street": 0,
+    //  "bb_added_chips_this_street": 0,
+    //  "button_seat": 0,
+    //  "sb_size": 5,
+    //  "bb_size": 10,
+    //  "btn_hole_cards": [ "8d", "6d" ],
+    //  "bb_hole_cards": null,
+    //  "board_cards": [],
+    //  "available_actions": [ { "PostBlind": 5 } ],
+    //  "active_player": "Button"
+    // };
+
     function sendCmd(cmd) {
         console.log('send cmd', cmd);
         if (ws && cmd) {
@@ -97,31 +84,29 @@
 </script>
 
 <style>
-    table {
-        border-collapse: collapse;
-    }
     td, th {
         border: 1px solid black;
     }
     tr.active {
         background-color: lightgreen;
     }
-
     .rawmode {
-        margin-top: 50px;
-        color: grey !important;
+        padding-top: 50px;
+        color: grey;
+    }
+    
+    .rawmode button {
+        background-color: white;
     }
 </style>
 
 <h1>Hu4Rolls-2 game</h1>
 
 {#if state}
-    <h2>Hand</h2>
+    <h2>Table</h2>
     <!-- use renderCard to get HTML tag for card -->
     <p> {@html renderCards(state.board_cards)} </p>
     <p>Pot: {state.pot_size}</p>
-    <p>Active player: {state.active_player}
-    {(state.available_actions && state.available_actions.length) ? ' (you)' : ''}</p>
     <p>Blinds: {state.sb_size} / {state.bb_size}</p>
 
     <h2>Players</h2>
@@ -130,7 +115,7 @@
             <tr>
                 <th>Seat</th>
                 <th>Stack</th>
-                <th>Added this street</th>
+                <th>Bet this street</th>
                 <th>Hole cards</th>
             </tr>
             <tr class:active={state.active_player == 'Button'}>
@@ -149,7 +134,7 @@
         </tbody>
     </table>
     
-    {#if state.available_actions }
+    {#if state.available_actions && state.available_actions.length }
     <h3>Available actions</h3>
     <!-- Go through keys of state.actions -->
     {#each state.available_actions as action}
@@ -172,8 +157,9 @@
     <button on:click={() => sendCmd('state')}>Get state!</button>
 {/if}
 
-<hr>
 <div class="rawmode">
+<button on:click={() => showRaw = !showRaw}>Toggle raw mode</button>
+{#if showRaw}
     <h2>Raw mode</h2>
 
     {#if ws}
@@ -194,4 +180,5 @@
         {JSON.stringify(state, null, 2)}
         </pre>
     </form>
+{/if}
 </div>
