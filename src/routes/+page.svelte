@@ -50,7 +50,10 @@ async function joinGame() {
     console.log(resp.url, ws_id);
     
     // Redirect browser to play page /seat/<ws_id>
-    window.location.href = `/seat/${ws_id}`;
+    // popup in a new window
+    window.open(`/seat/${ws_id}`);
+    
+    //window.location.href = `/seat/${ws_id}`;
 }
 </script>
 
