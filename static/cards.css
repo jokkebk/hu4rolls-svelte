@@ -1,0 +1,71 @@
+.card {
+    box-sizing: border-box;
+    display: inline-block;
+    position: relative;
+    overflow: hidden;
+
+    width: 5em;
+    height: 7em;
+
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 0.5em;
+
+    margin: 0.2em;
+
+    text-align: center;
+}
+
+.card:after, .card:before {
+    position: absolute;
+    margin-left: auto;
+    margin-right: auto;
+    left: 0;
+    right: 0;
+
+    font-family: 'Roboto', sans-serif;
+    font-weight: bold;
+}
+
+.card:before {
+    font-size: 3em;
+    top: 0em;
+}
+
+.card:after {
+    font-size: 4em;
+    bottom: -0.1em;
+}
+
+.card-2:before { content: "2"; }
+.card-3:before { content: "3"; }
+.card-4:before { content: "4"; }
+.card-5:before { content: "5"; }
+.card-6:before { content: "6"; }
+.card-7:before { content: "7"; }
+.card-8:before { content: "8"; }
+.card-9:before { content: "9"; }
+.card-T:before { content: "10"; }
+.card-J:before { content: "J"; }
+.card-Q:before { content: "Q"; }
+.card-K:before { content: "K"; }
+.card-A:before { content: "A"; }
+
+.card-h, .card-d { color: red; }
+
+.card-h:after { content: "\2665"; }
+.card-d:after { content: "\2666"; }
+.card-c:after { content: "\2663"; }
+.card-s:after { content: "\2660"; }
+
+ /* Joker */
+.card-X:before {
+    content: "Joker";
+    font-size: 1.8em;
+    top: 0.4em;
+}
+
+.card-X:after {
+    font-size: 3.5em;
+    content: "?";
+}
