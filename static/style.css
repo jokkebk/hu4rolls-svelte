@@ -1,0 +1,29 @@
+
+body {
+    font-size: 1.2em;
+    font-family: 'Roboto', sans-serif;
+    margin: 1em;
+}
+
+input, button, select {
+    font-size: 1em;
+    font-family: 'Roboto', sans-serif;
+    padding: 0.2em;
+    border: 1px solid black;
+    border-radius: 0.5em;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+td, th {
+    padding: 0.2em;
+}
+
+button {
+    width: 10em;
+    background-color: #ddf;
+    border: 1px solid black;
+    border-radius: 0.5em;
+}
