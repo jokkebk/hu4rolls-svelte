@@ -8,7 +8,8 @@
     let ws = null;
     let rawCmd = 'state';
     let showRaw = false;
-    let you = 'btn', opp = 'bb'; // these will contain 'bb' and 'btn'
+    let you = 'btn', opp = 'bb', active=false; // these will contain 'bb' and 'btn'
+    let winner = null;
 
     let betsize = 0; // helper for betsize input
     let state = null; 
@@ -39,12 +40,16 @@
         };
         ws.onmessage = (msg) => {
             console.log('ws message', msg);
-            state = JSON.parse(msg.data);
+            let data = JSON.parse(msg.data);
             
-            if(!state.active_player) return; // game not started yet
-
+            if(data.winner) { // game over
+                winner = data.winner;
+                return;
+            } else state = data; // update state
+            
             you = state.active_player == 'Button' ? 'btn' : 'bb';
             opp = state.active_player == 'Button' ? 'bb' : 'btn';
+            active = true;
 
             // Figure out if we are btn or bb
             if(!state.available_actions || state.available_actions.length == 0) {
@@ -52,6 +57,7 @@
                 let tmp = you;
                 you = opp;
                 opp = tmp;
+                active = false;
             }
             console.log('you', you, 'opp', opp);
             console.log(state[opp+'_stack']);
@@ -121,6 +127,7 @@
     .player, .table {
         padding: 10px;
         text-align: center;
+        margin-bottom: 0.5em;
     }
     
     .player h1, .table h1 {
@@ -134,10 +141,21 @@
         border-radius: 2em;
         box-shadow: 0.2em 0.2em 0.2em rgba(95, 95, 95, 0.5);
     }
+    
+    .active {
+        border-radius: 2em;
+        border: 2px solid red;
+    }
 </style>
 
-{#if state}
-    <div class="player">
+{#if winner}
+    <div class="table">
+        <h1>Winner: {winner}</h1>
+        <button on:click={() => winner = null}>OK</button>
+    </div>
+{:else if state}
+    <!-- Add 'active' class if active is false -->
+    <div class="player" class:active={!active}>
         <h1>Opponent ({opp})</h1>
         <p>Stack: {state[opp+'_stack']}
         (bet {state[opp+'_added_chips_this_street']} this street)</p>
@@ -149,7 +167,7 @@
         <p>Pot: {state.pot_size}
         (blinds: {state.sb_size} / {state.bb_size})</p>
     </div>
-    <div class="player">
+    <div class="player" class:active={active}>
         <h1>You ({you.toUpperCase()})</h1>
         <p>Stack: {state[you+'_stack']}
         (bet {state[you+'_added_chips_this_street']} this street)</p>
