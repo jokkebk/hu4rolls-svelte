@@ -37,6 +37,7 @@
         ws = new WebSocket(wsAddr);
         ws.onopen = () => {
             console.log('ws open');
+            sendCmd('state'); // automatically fetch state first
         };
         ws.onmessage = (msg) => {
             console.log('ws message', msg);
