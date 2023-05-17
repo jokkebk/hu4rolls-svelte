@@ -60,8 +60,12 @@
                 opp = tmp;
                 active = false;
             }
-            console.log('you', you, 'opp', opp);
-            console.log(state[opp+'_stack']);
+            
+            for(let action of state.available_actions) {
+                if(action.Bet) betsize = action.Bet[0];
+                if(action.Raise) betsize = action.Raise[0];
+            }
+            console.log('betsize', betsize);
         };
         ws.onclose = () => {
             console.log('ws close');
@@ -70,17 +74,13 @@
 
     function sendCmd(cmd) {
         console.log('send cmd', cmd);
-        if (ws && cmd) {
-            ws.send(cmd);
-        }
+        if(ws && cmd) ws.send(cmd);
         cmd = '';
     }
     
     function sendAction(action) {
         console.log('send action', action);
-        if (ws) {
-            ws.send(JSON.stringify(action));
-        }
+        if(ws) ws.send(JSON.stringify(action));
     }
     
     function sendBet(action) {
@@ -89,10 +89,7 @@
         action[Object.keys(action)[0]] = betsize;
 
         console.log('send bet', action);
-        if (ws && betsize) {
-            ws.send(JSON.stringify(action));
-        }
-        betsize = 0;
+        if(ws) ws.send(JSON.stringify(action));
     }
     
     function renderCards(cards, n) {
