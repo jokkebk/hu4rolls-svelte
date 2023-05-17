@@ -7,7 +7,7 @@ let stacks = 200;
 let seat = 0;
 let response = null;
 
-let seats = ['Button', 'BB'];
+let seats = ['Seat 0', 'Seat 1'];
 
 async function createGame() {
     // Post AJAX request to create game
@@ -57,13 +57,15 @@ async function joinGame() {
 }
 </script>
 
+<svelte:head>
+</svelte:head>
+
 <style>
     th {
         text-align: left;
     }
 </style>
 
-<h1>Hu4Rolls-2 Svelte Client!</h1>
     
 <p>First you need to create a game. After that, you and your friend can join it.</p>
 

@@ -14,6 +14,9 @@
     margin: 0.2em;
 
     text-align: center;
+    
+    /* Small shadow to bottom right */
+    box-shadow: 0.1em 0.1em 0.2em rgba(95, 95, 95, 0.5);
 }
 
 .card:after, .card:before {
@@ -52,6 +55,8 @@
 .card-A:before { content: "A"; }
 
 .card-h, .card-d { color: red; }
+.card-s, .card-c { color: black; }
+.card-n { background-color: #f88484; }
 
 .card-h:after { content: "\2665"; }
 .card-d:after { content: "\2666"; }
