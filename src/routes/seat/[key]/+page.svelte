@@ -1,13 +1,9 @@
 <script>
-    import { page } from '$app/stores'
     import { onMount } from 'svelte';
-    
-    // hardcode for now
-    let host = 'localhost';
-    let port = 8000;
-    let ws = null;
-    let rawCmd = 'state';
-    let showRaw = false;
+
+    export let data;
+
+    let ws = null, wsOpen = false, wsAddr = '';
     let you = 'btn', opp = 'bb', active=false; // these will contain 'bb' and 'btn'
     let winner = null;
 
@@ -30,57 +26,61 @@
     //  "active_player": "Button"
     // };
 
-    $: wsAddr = `ws://${host}:${port}/ws/${$page.params.key}`;
+    let rawCmd = 'state';
+    let showRaw = false;
 
     // Connect onMount
     onMount(() => {
+        wsAddr = data.url;
         ws = new WebSocket(wsAddr);
         ws.onopen = () => {
+            wsOpen = true;
             console.log('ws open');
             sendCmd('state'); // automatically fetch state first
         };
-        ws.onmessage = (msg) => {
-            console.log('ws message', msg);
-            let data = JSON.parse(msg.data);
-            
-            if(data.winner) { // game over
-                winner = data.winner;
-                return;
-            } else state = data; // update state
-            
-            you = state.active_player == 'Button' ? 'btn' : 'bb';
-            opp = state.active_player == 'Button' ? 'bb' : 'btn';
-            active = true;
-
-            // Figure out if we are btn or bb
-            if(!state.available_actions || state.available_actions.length == 0) {
-                // Swap you and opp
-                let tmp = you;
-                you = opp;
-                opp = tmp;
-                active = false;
-            }
-            
-            for(let action of state.available_actions) {
-                if(action.Bet) betsize = action.Bet[0];
-                if(action.Raise) betsize = action.Raise[0];
-            }
-            console.log('betsize', betsize);
-        };
-        ws.onclose = () => {
-            console.log('ws close');
-        };
+        ws.onclose = () => { console.log('ws close'); };
+        ws.onmessage = handleMessage;
     });
+    
+    function handleMessage(msg) {
+        console.log('ws message', msg);
+        let data = JSON.parse(msg.data);
+        
+        // If data contains winner key, game is over
+        if('winner' in data) {
+            winner = data;
+            return;
+        } else state = data; // update state
+        
+        you = state.active_player == 'Button' ? 'btn' : 'bb';
+        opp = state.active_player == 'Button' ? 'bb' : 'btn';
+        active = true;
+
+        // Figure out if we are btn or bb
+        if(!state.available_actions || state.available_actions.length == 0) {
+            // Swap you and opp
+            let tmp = you;
+            you = opp;
+            opp = tmp;
+            active = false;
+        }
+        
+        for(let action of state.available_actions) {
+            if(action.Bet) betsize = action.Bet[0];
+            if(action.Raise) betsize = action.Raise[0];
+        }
+        console.log('betsize', betsize);
+    }
 
     function sendCmd(cmd) {
         console.log('send cmd', cmd);
-        if(ws && cmd) ws.send(cmd);
+        if(wsOpen && cmd) ws.send(cmd);
         cmd = '';
     }
     
     function sendAction(action) {
         console.log('send action', action);
-        if(ws) ws.send(JSON.stringify(action));
+        if(wsOpen) ws.send(JSON.stringify(action));
     }
     
     function sendBet(action) {
@@ -89,7 +89,7 @@
         action[Object.keys(action)[0]] = betsize;
 
         console.log('send bet', action);
-        if(ws) ws.send(JSON.stringify(action));
+        if(wsOpen) ws.send(JSON.stringify(action));
     }
     
     function renderCards(cards, n) {
@@ -148,9 +148,17 @@
 
 {#if winner}
     <div class="table">
+        {#if winner.winner}
         <h1>Winner: {winner}</h1>
+        {:else}
+        <h1>Split pot</h1>
+        {/if}
         <button on:click={() => winner = null}>OK</button>
     </div>
+    <h2>Result in detail</h2>
+    <pre>
+    {JSON.stringify(winner, null, 2)}
+    </pre>
 {:else if state}
     <!-- Add 'active' class if active is false -->
     <div class="player" class:active={!active}>
@@ -203,7 +211,7 @@
 
     {#if ws}
         <p>Connected to {wsAddr}
-        <button on:click={() => { ws.close(); ws = null; }}>Disconnect</button>
+        <button on:click={() => { ws.close(); ws = null; wsOpen = false; }}>Disconnect</button>
         </p>
     {:else}
         <p>Disconnected.</p>

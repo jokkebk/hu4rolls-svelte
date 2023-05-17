@@ -4,10 +4,7 @@ let port = 8000;
 let game_id = 123;
 let sb_size = 5;
 let stacks = 200;
-let seat = 0;
 let response = null;
-
-let seats = ['Seat 0', 'Seat 1'];
 
 async function createGame() {
     // Post AJAX request to create game
@@ -27,38 +24,46 @@ async function createGame() {
     response = await resp.json();
 }
 
-async function joinGame() {
-    // Post AJAX request to join game
-    let resp = await fetch(`http://${host}:${port}/join`, {
+async function joinGame(seat) {
+    window.open(`/seat/${host}_${port}_${game_id}_${seat}`);
+    // Post AJAX request to create game
+    /*let resp = await fetch(`http://${host}:${port}/join`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
             'game_id': game_id,
-            'seat': seat,
+            'seat': 0,
         })
     });
     
-    // Example response:
-    // { "url": "ws://127.0.0.1:8000/ws/abc123" }
-    // Parse response as JSON
-    resp = await resp.json();
+    // Get response and put to response variable
+    response = await resp.json();
+    */
+};
+    async function fuckMeSideways() {
+        // Extract host, port, game_id, seat from page params
+        //let [host, port, game_id, seat] = $page.params.key.split('_');
+        
+        console.log(`http://${host}:${port}/join`, game_id);
 
-    // Parse the unique alphanumeric id from end of response
-    let ws_id = resp.url.split('/').pop();
-    console.log(resp.url, ws_id);
-    
-    // Redirect browser to play page /seat/<ws_id>
-    // popup in a new window
-    window.open(`/seat/${ws_id}`);
-    
-    //window.location.href = `/seat/${ws_id}`;
-}
+        let resp = await fetch(`http://${host}:${port}/join`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                'game_id': game_id,
+                'seat': 0,
+            })
+        });
+        
+        // JSON should have { 'url': 'ws://...' }
+        const data = await resp.json();
+        console.log(data);
+    }
 </script>
-
-<svelte:head>
-</svelte:head>
 
 <style>
     th {
@@ -66,6 +71,7 @@ async function joinGame() {
     }
 </style>
 
+<button on:click={fuckMeSideways}>FUCK ME!</button>
     
 <p>First you need to create a game. After that, you and your friend can join it.</p>
 
@@ -98,30 +104,10 @@ async function joinGame() {
     </table>
 </form>
 
-<!-- Show response as pre tag -->
-<pre>{JSON.stringify(response, null, 2)}</pre>
+{#if response}
+<pre>{@html JSON.stringify(response, null, 2)}</pre>
 
-<h2>Join a game</h2>
-
-<p>Once a game is created, you can join it, just enter/update id and specify seat.</p>
-
-<form>
-    <table>
-    <tr>
-    <th><label for="game_id">Game ID</label></th>
-    <td><input type="number" bind:value={game_id} placeholder="Game ID" id="game_id"></td>
-    </tr>
-    <tr>
-    <th><label for="seat">Seat</label></th>
-    <td><select bind:value={seat} id="seat">
-    {#each seats as s, i}
-        <option value={i}>{s}</option>
-    {/each}
-    </select>
-    </td>
-    </tr>
-    <tr>
-    <th colspan="2"><button on:click={joinGame}>Join game</button></th>
-    </tr>
-    </table>
-</form>
+{#each [0, 1] as seat}
+<button on:click={() => joinGame(seat)}>Join game {seat}</button>
+{/each}
+{/if}
