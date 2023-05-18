@@ -26,53 +26,13 @@ async function createGame() {
 
 async function joinGame(seat) {
     window.open(`/seat/${host}_${port}_${game_id}_${seat}`);
-    // Post AJAX request to create game
-    /*let resp = await fetch(`http://${host}:${port}/join`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            'game_id': game_id,
-            'seat': 0,
-        })
-    });
-    
-    // Get response and put to response variable
-    response = await resp.json();
-    */
 };
-    async function fuckMeSideways() {
-        // Extract host, port, game_id, seat from page params
-        //let [host, port, game_id, seat] = $page.params.key.split('_');
-        
-        console.log(`http://${host}:${port}/join`, game_id);
-
-        let resp = await fetch(`http://${host}:${port}/join`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                'game_id': game_id,
-                'seat': 0,
-            })
-        });
-        
-        // JSON should have { 'url': 'ws://...' }
-        const data = await resp.json();
-        console.log(data);
-    }
 </script>
 
 <style>
-    th {
-        text-align: left;
-    }
+    th { text-align: left; }
 </style>
 
-<button on:click={fuckMeSideways}>FUCK ME!</button>
-    
 <p>First you need to create a game. After that, you and your friend can join it.</p>
 
 <form>
@@ -108,6 +68,8 @@ async function joinGame(seat) {
 <pre>{@html JSON.stringify(response, null, 2)}</pre>
 
 {#each [0, 1] as seat}
-<button on:click={() => joinGame(seat)}>Join game {seat}</button>
+<p>
+<button on:click={() => joinGame(seat)}>Join seat {seat}</button>
+</p>
 {/each}
 {/if}
